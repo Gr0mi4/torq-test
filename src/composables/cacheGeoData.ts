@@ -3,6 +3,8 @@ import { GeoData } from "@/types";
 
 const geoCache = new Map<string, GeoData>();
 
+export const IP_SERVICE_URL = 'https://ipinfo.io';
+
 /**
  * Fetches geographical data for a given IP address using the ipinfo.co service, with caching.
  */
@@ -11,7 +13,7 @@ export async function getGeoData(ip: string): Promise<GeoData> {
     if (cached) return cached;
 
     try {
-        const { data, status } = await axios.get(`https://ipinfo.io/${ip}/json`);
+        const { data, status } = await axios.get(`${IP_SERVICE_URL}/${ip}/json`);
 
         if (status !== 200 || data.bogon) {
             let message = `IP lookup failed: ${data.reason || 'Unknown error'}`;

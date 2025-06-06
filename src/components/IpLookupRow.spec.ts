@@ -140,7 +140,7 @@ describe("IpLookupRow.vue", () => {
 
         expect((wrapper.vm as any).status).toBe(RequestStatus.Loading)
 
-        resolveGeo({ country: "Sampleland", countryCode: "SL", timezone: "UTC" })
+        resolveGeo({ countryCode: "SL", timezone: "UTC" })
 
         await vi.advanceTimersByTimeAsync(100)
         await wrapper.vm.$nextTick()
@@ -152,7 +152,7 @@ describe("IpLookupRow.vue", () => {
         const flagImg = wrapper.find("img.country-flag")
         expect(flagImg.exists()).toBe(true)
         expect(flagImg.attributes("src")).toBe("https://flags.example/sl.svg")
-        expect(flagImg.attributes("alt")).toBe("Sampleland")
+        expect(flagImg.attributes("alt")).toBe("Country Flag")
 
         // Local time should render based on mocked clock (12:00:00 UTC)
         const timeSpan = wrapper.find(".local-time")
@@ -201,7 +201,7 @@ describe("IpLookupRow.vue", () => {
         expect((wrapper.vm as any).ipInput).toBe("8.8.8.8")
         expect((wrapper.vm as any).status).toBe(RequestStatus.Loading)
 
-        resolveGeo({ country: "Randland", countryCode: "RL", timezone: "UTC" })
+        resolveGeo({ countryCode: "RL", timezone: "UTC" })
         await wrapper.vm.$nextTick()
 
         // Advance timers for getFlagUrl
