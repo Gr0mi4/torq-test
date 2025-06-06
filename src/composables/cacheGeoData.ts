@@ -7,28 +7,26 @@ const geoCache = new Map<string, GeoData>();
  * Fetches geographical data for a given IP address using the ip-api.com service, with caching.
  */
 export async function getGeoData(ip: string): Promise<GeoData> {
-    if (geoCache.has(ip)) {
-        return geoCache.get(ip)!;
-    }
+    const cached = geoCache.get(ip);
+    if (cached) return cached;
 
-    let raw: RawGeoResponse;
     try {
-        const response = await axios.get<RawGeoResponse>(`http://ip-api.com/json/${ip}`);
-        raw = response.data;
+        const { data, status } = await axios.get(`https://ipapi.co/${ip}/json`);
+
+        if (status !== 200 || data.error) {
+            throw new Error(`IP lookup failed: ${data.reason || 'Unknown error'}`);
+        }
+
+        const result: GeoData = {
+            country: data.country,
+            countryCode: data.country_code,
+            timezone: data.timezone,
+        };
+
+        geoCache.set(ip, result);
+        return result;
+
     } catch (err: any) {
-        throw new Error("Network error or CORS issue");
+        throw new Error("Failed to fetch geolocation data");
     }
-
-    if (raw.status !== "success") {
-        throw new Error("IP lookup failed " + raw.message);
-    }
-
-    const result: GeoData = {
-        country: raw.country,
-        countryCode: raw.countryCode,
-        timezone: raw.timezone,
-    };
-
-    geoCache.set(ip, result);
-    return result;
 }
