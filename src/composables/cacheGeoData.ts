@@ -13,8 +13,12 @@ export async function getGeoData(ip: string): Promise<GeoData> {
     try {
         const { data, status } = await axios.get(`https://ipinfo.io/${ip}/json`);
 
-        if (status !== 200 || data.error) {
-            throw new Error(`IP lookup failed: ${data.reason || 'Unknown error'}`);
+        if (status !== 200 || data.bogon) {
+            let message = `IP lookup failed: ${data.reason || 'Unknown error'}`;
+            if (data.bogon) {
+                message = 'Ip address private or reserved';
+            }
+            throw new Error(message);
         }
 
         const result: GeoData = {
@@ -26,6 +30,6 @@ export async function getGeoData(ip: string): Promise<GeoData> {
         return result;
 
     } catch (err: any) {
-        throw new Error("Failed to fetch geolocation data");
+        throw new Error(err.message || "Network error or CORS issue");
     }
 }
