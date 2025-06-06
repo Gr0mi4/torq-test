@@ -22,7 +22,7 @@
                     :src="flagUrl"
                     class="country-flag"
                     width="30"
-                    :alt="countryData.country"
+                    alt="Country Flag"
                 >
                 <span class="local-time ml8">{{ localTime }}</span>
             </div>
@@ -107,7 +107,6 @@ const processInput = async () => {
     }
 }
 const countryData = reactive<GeoData>({
-    country: "",
     countryCode: "",
     timezone: "",
 })
@@ -115,7 +114,6 @@ const flagUrl = ref<string>("");
 let timerId: number | null = null;
 
 function clearCountryData() {
-    countryData.country = "";
     countryData.countryCode = "";
     countryData.timezone = "";
     flagUrl.value = "";

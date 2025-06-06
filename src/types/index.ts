@@ -1,5 +1,4 @@
 export interface GeoData {
-    country: string;
     countryCode: string;
     timezone: string;
 }
