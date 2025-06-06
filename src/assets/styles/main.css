@@ -1,0 +1,30 @@
+.p16 {
+    padding: 16px;
+}
+
+.br5 {
+    border-radius: 5px;
+}
+
+.ml8 {
+    margin-left: 8px;
+}
+
+.fsz18 {
+    font-size: 18px;
+}
+
+.border-box {
+    box-sizing: border-box;
+}
+
+button {
+    cursor: pointer;
+    box-shadow: 0 0 7px rgba(0, 0, 0, 0.2);
+    border: none;
+}
+
+button:hover {
+    transform: scale(1.05);
+    transition: all .5s;
+}
