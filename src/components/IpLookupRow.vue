@@ -44,12 +44,10 @@ import { fixLeadingZeros, validateIPv4 } from "@/utils/validation";
 import { getFlagUrl } from "@/utils/flagHelper";
 import StatusIcon from "@/components/StatusIcon.vue";
 import { GeoData, RequestStatus } from "@/types";
-import { useIpInputMask, generateRandomIp } from "@/composables/useIpInputMask";
+import { generateRandomIp, useIpV4InputMask } from "@/composables/useIpV4InputMask";
 import { getGeoData } from "@/composables/useGeoData";
 import { useClock } from "@/composables/useCommonClock";
 import RowActions from "@/components/RowActions.vue";
-
-// TODO: IP SERVICE FALLBACK
 
 const props = defineProps({
     displayIndex: {
@@ -73,7 +71,7 @@ onMounted(() => {
 const status = ref<RequestStatus>(RequestStatus.Idle);
 
 const ipInput = ref<string>("");
-const { onKeypress, onPaste, ipInputHelper } = useIpInputMask(ipInput, inputEl);
+const { onKeypress, onPaste, ipInputHelper } = useIpV4InputMask(ipInput, inputEl);
 
 const processInput = async () => {
     ipInput.value = fixLeadingZeros(ipInput.value).trim();

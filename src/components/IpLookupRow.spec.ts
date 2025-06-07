@@ -12,8 +12,8 @@ vi.mock("@/utils/flagHelper", () => ({
     getFlagUrl: vi.fn()
 }))
 
-vi.mock("@/composables/useIpInputMask", () => ({
-    useIpInputMask: vi.fn(() => ({
+vi.mock("@/composables/useIpV4InputMask", () => ({
+    useIpV4InputMask: vi.fn(() => ({
         onKeypress: () => {
         },
         onPaste: () => {
@@ -36,7 +36,7 @@ vi.mock("@/composables/useCommonClock", () => ({
 
 import { validateIPv4 } from "@/utils/validation"
 import { getFlagUrl } from "@/utils/flagHelper"
-import { generateRandomIp } from "@/composables/useIpInputMask"
+import { generateRandomIp } from "@/composables/useIpV4InputMask"
 import { getGeoData } from "@/composables/useGeoData"
 
 describe("IpLookupRow.vue", () => {

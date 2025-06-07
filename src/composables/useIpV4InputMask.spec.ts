@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref } from "vue";
-import { shouldAddAutoDot, generateRandomIp, useIpInputMask } from "@/composables/useIpInputMask";
+import { shouldAddAutoDot, generateRandomIp, useIpV4InputMask } from "@/composables/useIpV4InputMask";
 
 describe("shouldAddAutoDot", () => {
     it("should return false for empty or null input", () => {
@@ -70,11 +70,11 @@ describe("generateRandomIp", () => {
     });
 });
 
-describe("useIpInputMask", () => {
+describe("useIpV4InputMask", () => {
     let ip: ReturnType<typeof ref<string>>;
     let inputEl: ReturnType<typeof ref<HTMLInputElement | null>>;
     let mockInputElement: HTMLInputElement;
-    let ipInputMask: ReturnType<typeof useIpInputMask>;
+    let ipInputMask: ReturnType<typeof useIpV4InputMask>;
 
     beforeEach(() => {
         ip = ref("");
@@ -84,7 +84,7 @@ describe("useIpInputMask", () => {
             value: ""
         } as any;
         inputEl = ref(mockInputElement);
-        ipInputMask = useIpInputMask(ip, inputEl);
+        ipInputMask = useIpV4InputMask(ip, inputEl);
     });
 
     describe("onKeypress", () => {

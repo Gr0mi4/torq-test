@@ -67,7 +67,7 @@ function addAutoDot(
  * @param {Ref<HTMLInputElement | null>} inputEl - A reactive reference to the HTML input element
  * @return {Object} An object containing functions to handle keypress events, paste events, and IP input formatting.
  */
-export function useIpInputMask(
+export function useIpV4InputMask(
     ip: Ref<string>,
     inputEl: Ref<HTMLInputElement | null>
 ) {
