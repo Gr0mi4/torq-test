@@ -1,7 +1,7 @@
 <template>
     <div class="list-wrapper">
         <header class="list-header border-box p16">
-            <label class="button-label fsz18"> Enter one or more IP addresses and get their country</label>
+            <label class="button-label fsz18"> Enter one or more IPv4 addresses and get their country</label>
 
             <button class="add-ip-button br5" type="button" @click="addIpInput">
                 <img
@@ -14,7 +14,7 @@
                 <span class="button-text fsz18 ml8">Add</span>
             </button>
         </header>
-        <div class="border-box p16">
+        <div v-if="ipInputs.length" class="border-box p16">
             <IpLookupRow
                 v-for="(input, index) in ipInputs"
                 :key="input.id"

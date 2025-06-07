@@ -28,3 +28,29 @@ button:hover {
     transform: scale(1.05);
     transition: all .5s;
 }
+
+button {
+    position: relative;
+}
+
+button[data-tooltip]:after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: 4px 8px;
+    white-space: nowrap;
+    background: #73d2f9;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 5px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease-out;
+}
+
+button:hover::after {
+    transition-delay: .7s;
+    opacity: 1;
+}

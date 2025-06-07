@@ -19,7 +19,6 @@ describe("IpLookupList.vue", () => {
                 },
             },
         })
-        console.log(wrapper.html())
         const rows = wrapper.findAll(".row-stub")
         expect(rows).toHaveLength(1)
     })

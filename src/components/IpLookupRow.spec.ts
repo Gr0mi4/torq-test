@@ -24,7 +24,7 @@ vi.mock("@/composables/useIpInputMask", () => ({
     generateRandomIp: vi.fn()
 }))
 
-vi.mock("@/composables/cacheGeoData", () => ({
+vi.mock("@/composables/useGeoData", () => ({
     getGeoData: vi.fn()
 }))
 
@@ -37,7 +37,7 @@ vi.mock("@/composables/useCommonClock", () => ({
 import { validateIPv4 } from "@/utils/validation"
 import { getFlagUrl } from "@/utils/flagHelper"
 import { generateRandomIp } from "@/composables/useIpInputMask"
-import { getGeoData } from "@/composables/cacheGeoData"
+import { getGeoData } from "@/composables/useGeoData"
 
 describe("IpLookupRow.vue", () => {
     const ROW_ID = 42

@@ -1,15 +1,22 @@
 import { ValidationResult } from '@/types/index';
 import { reservedRanges } from "@/utils/reservedRanges";
 
+export const VALIDATION_ERRS_TEXT = {
+    EMPTY: 'IP should not be blank',
+    INVALID: 'IP address is not valid',
+    VALID: 'Valid IPv4 address',
+    INVALID_OCTETS: 'Invalid octet(s) at position(s): '
+}
+
 export function validateIPv4(ip: string): ValidationResult {
     if (!ip || typeof ip !== 'string') {
-        return { isValid: false, message: 'IP should be a non-empty string' };
+        return { isValid: false, message: VALIDATION_ERRS_TEXT.EMPTY };
     }
 
     // Basic format check
     const ipv4FormatRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
     if (!ipv4FormatRegex.test(ip)) {
-        return { isValid: false, message: 'IP address is not valid' };
+        return { isValid: false, message: VALIDATION_ERRS_TEXT.INVALID };
     }
 
     // Split the IP into octets and validate each one, ensuring they are in the range 0-255
@@ -25,7 +32,7 @@ export function validateIPv4(ip: string): ValidationResult {
     if (invalidIndices.length > 0) {
         return {
             isValid: false,
-            message: `Invalid octet(s) at position(s): ${invalidIndices.join(', ')}`
+            message: VALIDATION_ERRS_TEXT.INVALID_OCTETS + invalidIndices.join(', ')
         };
     }
 

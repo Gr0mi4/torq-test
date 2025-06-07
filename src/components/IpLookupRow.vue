@@ -32,10 +32,13 @@
                     class="generate-random-btn"
                     @click="handleRandomClick"
                     :disabled="status === RequestStatus.Loading"
+                    data-tooltip="Generate Random IP Address"
                 >
                     <span class="fsz18">🎲</span>
                 </button>
-                <button class="delete-row-btn" @click="deleteInput"><span class="fsz18">🗑️</span></button>
+                <button class="delete-row-btn" @click="deleteInput" data-tooltip="Delete Input Row">
+                    <span class="fsz18">🗑️</span>
+                </button>
             </div>
         </div>
         <span v-if="status === RequestStatus.Error" class="error-text">{{ errorText }}</span>
@@ -49,7 +52,7 @@ import { getFlagUrl } from "@/utils/flagHelper";
 import StatusIcon from "@/components/StatusIcon.vue";
 import { GeoData, RequestStatus } from "@/types";
 import { useIpInputMask, generateRandomIp } from "@/composables/useIpInputMask";
-import { getGeoData } from "@/composables/cacheGeoData";
+import { getGeoData } from "@/composables/useGeoData";
 import { useClock } from "@/composables/useCommonClock";
 
 // TODO: IP SERVICE FALLBACK

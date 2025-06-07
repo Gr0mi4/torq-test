@@ -8,10 +8,15 @@ export function useClock() {
 
     let intervalId: number;
 
+    const updateClock = () => {
+        now.value = new Date();
+        // Make sure date will be updated exactly next second
+        const delay = 1000 - (Date.now() % 1000);
+        intervalId = window.setTimeout(updateClock, delay);
+    };
+
     onMounted(() => {
-        intervalId = window.setInterval(() => {
-            now.value = new Date();
-        }, 1000);
+        updateClock();
     });
 
     onBeforeUnmount(() => {

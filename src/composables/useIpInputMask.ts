@@ -125,7 +125,6 @@ export function useIpInputMask(
             addAutoDot(ip, inputEl, sanitizedValue);
             return;
         } else if (octetsCount === 4) {
-            console.log(ip.value, 'ip value')
             if (lastOctet.length === 3) {
                 inputEl.value?.blur();
             }

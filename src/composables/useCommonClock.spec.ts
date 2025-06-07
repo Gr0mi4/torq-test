@@ -5,13 +5,13 @@ import { useClock } from "@/composables/useCommonClock"
 
 describe("useClock", () => {
     beforeEach(() => {
-        // Use fake timers and mock Date to allow time control
         vi.useFakeTimers()
+        
+        vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
     })
 
     afterEach(() => {
         vi.useRealTimers()
-        vi.restoreAllMocks()
     })
 
     it("initializes now and updates it every second after mount", async () => {
