@@ -3,35 +3,35 @@ import { GeoData } from "@/types";
 
 const geoCache = new Map<string, GeoData>();
 
-export const IP_SERVICE_URL = 'https://ipinfo.io';
-
 /**
- * Fetches geographical data for a given IP address using the ipinfo.co service, with caching.
+ * Fetches geographical data with caching and number of fallbacks
  */
+import { GEO_PROVIDERS } from "@/config/geoDataProviders";
+
 export async function getGeoData(ip: string): Promise<GeoData> {
     const cached = geoCache.get(ip);
     if (cached) return cached;
 
-    try {
-        const { data, status } = await axios.get(`${IP_SERVICE_URL}/${ip}/json`);
+    for (const provider of GEO_PROVIDERS) {
+        try {
+            const url = provider.buildUrl(ip);
+            const response = await axios.get(url);
 
-        if (status !== 200 || data.bogon) {
-            let message = `IP lookup failed: ${data.reason || 'Unknown error'}`;
-            if (data.bogon) {
-                message = 'Ip address private or reserved';
+            if (!provider.validateResponse(response)) {
+                continue;
             }
-            throw new Error(message);
+
+            const result = provider.extractData(response);
+
+            geoCache.set(ip, result);
+
+            return result;
+
+        } catch (error: any) {
+            const errorMessage = provider.handleError?.(error);
+            console.warn(`Provider ${provider.name} failed:`, errorMessage);
         }
-
-        const result: GeoData = {
-            countryCode: data.country,
-            timezone: data.timezone,
-        };
-
-        geoCache.set(ip, result);
-        return result;
-
-    } catch (err: any) {
-        throw new Error(err.message || "Network error or CORS issue");
     }
+
+    throw new Error(`Unable to retrieve geo Data from any source`);
 }

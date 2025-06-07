@@ -27,13 +27,13 @@ export function generateRandomIp(): string {
     const octets = [];
     for (let i = 0; i < 4; i++) {
         const len = Math.floor(Math.random() * 3) + 1;
-        let octet = '';
+        let octet = "";
         for (let j = 0; j < len; j++) {
             octet += String(Math.floor(Math.random() * 3));
         }
         octets.push(octet);
     }
-    return octets.join('.');
+    return octets.join(".");
 }
 
 /**
@@ -47,7 +47,7 @@ function addAutoDot(
     inputElRef: { value: HTMLInputElement | null },
     baseValue: string
 ) {
-    const newValue = baseValue + '.';
+    const newValue = baseValue + ".";
 
     inputRef.value = newValue;
 
@@ -83,21 +83,21 @@ export function useIpInputMask(
 
     function onPaste(event: ClipboardEvent) {
         event.preventDefault();
-        const raw = event.clipboardData?.getData('text') || '';
+        const raw = event.clipboardData?.getData("text") || "";
 
-        ip.value = raw.replace(/[^0-9.]/g, '');
+        ip.value = raw.replace(/[^0-9.]/g, "");
     }
 
     function ipInputHelper(event: Event) {
         const inputEvent = event as InputEvent;
         // Make sure we avoid undeletable dots
-        if (inputEvent.inputType && inputEvent.inputType.startsWith('delete')) {
+        if (inputEvent.inputType && inputEvent.inputType.startsWith("delete")) {
             return;
         }
 
         const raw: string = (event.target as HTMLInputElement).value;
 
-        let octets: string[] = raw.split('.');
+        let octets: string[] = raw.split(".");
 
         // Sanitize octets: limit length to 3 digits, and ensure each octet is within 0-255
         const sanitizedOctets = octets.map(oct => {
@@ -105,17 +105,17 @@ export function useIpInputMask(
                 oct = oct.slice(0, 3);
             }
             const num = parseInt(oct, 10);
-            // Octets more then 255 will be replaced with '255',
+            // Octets more then 255 will be replaced with "255",
             if (num > 255) {
-                return '255';
+                return "255";
             }
             return oct;
         });
 
-        const sanitizedValue = sanitizedOctets.join('.');
+        const sanitizedValue = sanitizedOctets.join(".");
         if (sanitizedValue !== raw) {
             ip.value = sanitizedValue;
-            octets = sanitizedValue.split('.');
+            octets = sanitizedValue.split(".");
         }
 
         const lastOctet = octets[octets.length - 1];

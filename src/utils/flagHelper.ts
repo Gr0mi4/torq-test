@@ -11,7 +11,7 @@ export async function getFlagUrl(countryCode: string): Promise<string> {
 
     try {
         // Perform a HEAD request to primaryUrl to check if the file is available
-        const res = await fetch(primaryUrl, { method: 'HEAD' });
+        const res = await fetch(primaryUrl, { method: "HEAD" });
         if (res.ok) {
             return primaryUrl;
         } else {

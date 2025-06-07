@@ -4,10 +4,10 @@ export interface GeoData {
 }
 
 export enum RequestStatus {
-    Idle = 'idle',
-    Loading = 'loading',
-    Success = 'success',
-    Error = 'error',
+    Idle = "idle",
+    Loading = "loading",
+    Success = "success",
+    Error = "error",
 }
 
 export interface ValidationResult {
@@ -26,4 +26,12 @@ export interface RawGeoResponse {
     countryCode: string;
     timezone: string;
     message?: string;
+}
+
+export interface GeoProvider {
+    name: string;
+    buildUrl: (ip: string) => string;
+    validateResponse: (response: any) => boolean;
+    extractData: (response: any) => GeoData;
+    handleError?: (error: any) => string;
 }

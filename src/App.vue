@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import IpLookupList from './components/IpLookupList.vue';
+import IpLookupList from "./components/IpLookupList.vue";
 </script>
 
 <style scoped lang="scss">

@@ -1,15 +1,15 @@
-import { ValidationResult } from '@/types/index';
-import { reservedRanges } from "@/utils/reservedRanges";
+import { ValidationResult } from "@/types/index";
+import { reservedRanges } from "@/config/reservedRanges";
 
 export const VALIDATION_ERRS_TEXT = {
-    EMPTY: 'IP should not be blank',
-    INVALID: 'IP address is not valid',
-    VALID: 'Valid IPv4 address',
-    INVALID_OCTETS: 'Invalid octet(s) at position(s): '
+    EMPTY: "IP should not be blank",
+    INVALID: "IP address is not valid",
+    VALID: "Valid IPv4 address",
+    INVALID_OCTETS: "Invalid octet(s) at position(s): "
 }
 
 export function validateIPv4(ip: string): ValidationResult {
-    if (!ip || typeof ip !== 'string') {
+    if (!ip || typeof ip !== "string") {
         return { isValid: false, message: VALIDATION_ERRS_TEXT.EMPTY };
     }
 
@@ -20,7 +20,7 @@ export function validateIPv4(ip: string): ValidationResult {
     }
 
     // Split the IP into octets and validate each one, ensuring they are in the range 0-255
-    const octets: number[] = ip.split('.').map(Number);
+    const octets: number[] = ip.split(".").map(Number);
     const invalidIndices: number[] = [];
 
     octets.forEach((octet, index) => {
@@ -32,7 +32,7 @@ export function validateIPv4(ip: string): ValidationResult {
     if (invalidIndices.length > 0) {
         return {
             isValid: false,
-            message: VALIDATION_ERRS_TEXT.INVALID_OCTETS + invalidIndices.join(', ')
+            message: VALIDATION_ERRS_TEXT.INVALID_OCTETS + invalidIndices.join(", ")
         };
     }
 
@@ -42,7 +42,7 @@ export function validateIPv4(ip: string): ValidationResult {
         return { isValid: false, message: reservedError };
     }
 
-    return { isValid: true, message: 'Valid IPv4 address' };
+    return { isValid: true, message: VALIDATION_ERRS_TEXT.VALID };
 }
 
 /**
@@ -50,7 +50,7 @@ export function validateIPv4(ip: string): ValidationResult {
  * @param ip
  */
 function checkReservedRanges(ip: string): string | null {
-    const octets = ip.split('.').map(Number);
+    const octets = ip.split(".").map(Number);
 
     for (const range of reservedRanges) {
         if (range.check(octets)) {
@@ -66,9 +66,9 @@ function checkReservedRanges(ip: string): string | null {
  * @param value
  */
 export function fixLeadingZeros(value: string): string {
-    return value.split('.')
+    return value.split(".")
         .map(octet => {
-            return octet.replace(/^0+(\d)/, '$1') || (octet === '' ? '' : '0');
+            return octet.replace(/^0+(\d)/, "$1") || (octet === "" ? "" : "0");
         })
-        .join('.');
+        .join(".");
 }
