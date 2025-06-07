@@ -60,10 +60,6 @@ const iconClass = computed(() => {
 </script>
 
 <style scoped>
-.status-indicator img {
-    display: inline-block;
-}
-
 .icon {
     width: 24px;
     height: 24px;

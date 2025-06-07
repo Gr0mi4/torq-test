@@ -24,6 +24,10 @@ button {
     border: none;
 }
 
+button.disabled {
+    pointer-events: none;
+}
+
 button:hover {
     transform: scale(1.05);
     transition: all .5s;

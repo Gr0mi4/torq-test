@@ -5,6 +5,7 @@
             <input
                 type="text"
                 class="ip-input fsz18 br5"
+                :class="{ 'error' : status === RequestStatus.Error }"
                 ref="inputEl"
                 :disabled="status === RequestStatus.Loading"
                 placeholder="ex 132.45.0.12"
@@ -27,26 +28,18 @@
                 <span class="local-time ml8">{{ localTime }}</span>
             </div>
             <status-icon :status="status"/>
-            <div class="row-actions">
-                <button
-                    class="generate-random-btn"
-                    @click="handleRandomClick"
-                    :disabled="status === RequestStatus.Loading"
-                    data-tooltip="Generate Random IP Address"
-                >
-                    <span class="fsz18">🎲</span>
-                </button>
-                <button class="delete-row-btn" @click="deleteInput" data-tooltip="Delete Input Row">
-                    <span class="fsz18">🗑️</span>
-                </button>
-            </div>
+            <row-actions
+                @random="handleRandomClick"
+                @delete="deleteInput"
+                :disabled="status === RequestStatus.Loading"
+            />
         </div>
         <span v-if="status === RequestStatus.Error" class="error-text">{{ errorText }}</span>
     </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, onBeforeUnmount, computed } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import { fixLeadingZeros, validateIPv4 } from "@/utils/validation";
 import { getFlagUrl } from "@/utils/flagHelper";
 import StatusIcon from "@/components/StatusIcon.vue";
@@ -54,6 +47,7 @@ import { GeoData, RequestStatus } from "@/types";
 import { useIpInputMask, generateRandomIp } from "@/composables/useIpInputMask";
 import { getGeoData } from "@/composables/useGeoData";
 import { useClock } from "@/composables/useCommonClock";
+import RowActions from "@/components/RowActions.vue";
 
 // TODO: IP SERVICE FALLBACK
 
@@ -76,12 +70,6 @@ onMounted(() => {
     }
 });
 
-onBeforeUnmount(() => {
-    if (timerId !== null) {
-        clearInterval(timerId);
-    }
-});
-
 const status = ref<RequestStatus>(RequestStatus.Idle);
 
 const ipInput = ref<string>("");
@@ -98,13 +86,12 @@ const processInput = async () => {
     clearCountryData();
     status.value = RequestStatus.Loading;
     try {
-        const { country, countryCode, timezone } = await getGeoData(ipInput.value);
-        Object.assign(countryData, { country, countryCode, timezone });
+        const { countryCode, timezone } = await getGeoData(ipInput.value);
+        Object.assign(countryData, { countryCode, timezone });
 
         flagUrl.value = await getFlagUrl(countryCode);
         status.value = RequestStatus.Success;
     } catch (e) {
-        console.log(e)
         status.value = RequestStatus.Error;
         errorText.value = e;
     }
@@ -114,7 +101,6 @@ const countryData = reactive<GeoData>({
     timezone: "",
 })
 const flagUrl = ref<string>("");
-let timerId: number | null = null;
 
 function clearCountryData() {
     countryData.countryCode = "";
@@ -151,7 +137,9 @@ function deleteInput() {
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+$shadow: rgba(0, 0, 0, 0.3);
+
 .row-wrapper {
     display: flex;
     height: 40px;
@@ -168,54 +156,47 @@ function deleteInput() {
     flex-shrink: 0;
     text-align: center;
     line-height: 16px;
-    background-color: #e5e5e5;
+    background-color: $gray;
     border-radius: 50%;
 }
 
 .ip-input {
-    border: 2px solid #e5e5e5;
+    border: 2px solid $gray;
     padding: 4px;
     min-width: 140px;
+
+    &:focus {
+        outline: none;
+        border-color: $mainBlue;
+    }
+
+    &[disabled] {
+        cursor: not-allowed;
+        user-select: none;
+        pointer-events: none;
+    }
+
+    &.error {
+        border-color: $red;
+        border-width: 1px;
+    }
 }
 
-.ip-input:focus {
-    outline: none;
-    border-color: #73d2f9;
-}
-
-.ip-input[disabled] {
-    cursor: not-allowed;
-    user-select: none;
-    pointer-events: none;
-}
-
-.local-time, .country-flag {
+.local-time,
+.country-flag {
     vertical-align: middle;
 }
 
 .country-flag {
-    box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.3);
-}
-
-.generate-random-btn, .delete-row-btn {
-    border-radius: 50%;
-    padding: 4px;
-    background-color: transparent;
+    box-shadow: 2px 5px 5px $shadow;
 }
 
 .error-text {
-    color: red;
+    color: $red;
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 300px;
     max-height: 40px;
-}
-
-.row-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
 }
 </style>

@@ -9,18 +9,18 @@
 import IpLookupList from './components/IpLookupList.vue';
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .ip-container {
     width: 650px;
     margin: 0 auto;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     font-family: Inter, sans-serif;
-    color: black;
+    color: $black;
 }
 
 .header {
     font-size: 24px;
     font-weight: 600;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid $gray;
 }
 </style>

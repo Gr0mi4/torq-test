@@ -49,9 +49,11 @@ function removeById(idToRemove: number) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@use "sass:color";
+
 .list-header {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid $gray;
 }
 
 .button-label {
@@ -60,12 +62,12 @@ function removeById(idToRemove: number) {
 }
 
 .add-ip-button {
-    background-color: #73d2f9;
+    background-color: $mainBlue;
     padding: 8px 16px;
     height: 40px;
 
     &:hover {
-        background-color: #5bb8e0;
+        background-color: color.adjust($mainBlue, $lightness: -10%);
     }
 }
 
@@ -75,6 +77,6 @@ function removeById(idToRemove: number) {
 
 .button-text {
     font-weight: 600;
-    color: white;
+    color: $white;
 }
 </style>
