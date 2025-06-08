@@ -148,11 +148,11 @@ describe("IpLookupRow.vue", () => {
         expect((wrapper.vm as any).status).toBe(RequestStatus.Success)
         expect(wrapper.find("img.country-flag").exists()).toBe(true)
 
-        // Flag image should render with correct src and alt
+        // Flag image should render with correct src and alt with country code
         const flagImg = wrapper.find("img.country-flag")
         expect(flagImg.exists()).toBe(true)
         expect(flagImg.attributes("src")).toBe("https://flags.example/sl.svg")
-        expect(flagImg.attributes("alt")).toBe("Country Flag")
+        expect(flagImg.attributes("alt")).toBe("Country Flag SL")
 
         // Local time should render based on mocked clock (12:00:00 UTC)
         const timeSpan = wrapper.find(".local-time")

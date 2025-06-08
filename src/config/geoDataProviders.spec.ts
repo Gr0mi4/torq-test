@@ -270,7 +270,7 @@ describe("ipapi provider", () => {
             const response = {
                 status: 200,
                 data: {
-                    country_code: "gb", // lowercase
+                    country_code: "gb",
                     timezone: "Europe/London"
                 }
             }

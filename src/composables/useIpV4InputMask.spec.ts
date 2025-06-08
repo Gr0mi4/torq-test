@@ -43,7 +43,7 @@ describe("sanitizeRawValue", () => {
 
     it("should fix leading zeros for completed octets", () => {
         expect(sanitizeRawValue("001.002.003.004")).toBe("1.2.3.4");
-        expect(sanitizeRawValue("192.168.001")).toBe("192.168.001"); // последний октет не обрабатывается
+        expect(sanitizeRawValue("192.168.001")).toBe("192.168.001");
     });
 
     it("should handle incomplete IP addresses", () => {
@@ -92,7 +92,6 @@ describe("shouldAddAutoDot", () => {
     });
 
     it("should return true for single digit >= 256 (edge case)", () => {
-        // Исправлено: для одиночных цифр возвращается false, кроме случая когда число >= 256
         expect(shouldAddAutoDot("2", 1)).toBe(false);
         expect(shouldAddAutoDot("9", 1)).toBe(false);
     });

@@ -23,7 +23,7 @@
                     :src="flagUrl"
                     class="country-flag"
                     width="30"
-                    alt="Country Flag"
+                    :alt="`Country Flag ${countryData.countryCode}`"
                 >
                 <span class="local-time ml8">{{ localTime }}</span>
             </div>
@@ -48,6 +48,7 @@ import { generateRandomIp, useIpV4InputMask } from "@/composables/useIpV4InputMa
 import { getGeoData } from "@/composables/useGeoData";
 import { useClock } from "@/composables/useCommonClock";
 import RowActions from "@/components/RowActions.vue";
+import emptyFlag from "@/assets/icons/no-flag.svg"
 
 const props = defineProps({
     displayIndex: {
@@ -114,7 +115,7 @@ const processInput = async () => {
         const { countryCode, timezone } = await getGeoData(ipInput.value);
         Object.assign(countryData, { countryCode, timezone });
 
-        flagUrl.value = await getFlagUrl(countryCode);
+        flagUrl.value = await getFlagUrl(countryCode).catch(() => emptyFlag)
         status.value = RequestStatus.Success;
     } catch (e) {
         status.value = RequestStatus.Error;

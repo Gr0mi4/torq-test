@@ -53,10 +53,9 @@ describe("getGeoData", () => {
         expect(mockProviders[0].extractData).toHaveBeenCalled()
         expect(axiosMock.get).toHaveBeenCalledTimes(1)
 
-        // Проверяем кеширование
         const result2 = await getGeoData("1.2.3.4")
         expect(result2).toBe(result1)
-        expect(axiosMock.get).toHaveBeenCalledTimes(1) // Не должно быть повторных запросов
+        expect(axiosMock.get).toHaveBeenCalledTimes(1)
     })
 
     it("falls back to second provider when first fails", async () => {

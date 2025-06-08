@@ -1,23 +1,28 @@
+import { FLAG_PROVIDERS } from "@/config/flagProviders";
+
 /**
- * Returns the SVG flag URL for a given country code.
- * Uses flagcdn.com as the primary source and falls back to flagsapi.com
+ * Returns the flag URL for a given country code.
+ * Uses multiple providers with fallback mechanism.
  *
  * @param countryCode Two-letter country code (ISO 3166-1), e.g. "US", "ru", "DE".
  * @returns A Promise that resolves to the correct URL string.
  */
 export async function getFlagUrl(countryCode: string): Promise<string> {
-    const primaryUrl = `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
-    const fallbackUrl = `https://flagsapi.com/${countryCode}/flat/64.png`;
+    for (const provider of FLAG_PROVIDERS) {
+        try {
+            const url = provider.buildUrl(countryCode);
 
-    try {
-        // Perform a HEAD request to primaryUrl to check if the file is available
-        const res = await fetch(primaryUrl, { method: "HEAD" });
-        if (res.ok) {
-            return primaryUrl;
-        } else {
-            return fallbackUrl;
+            const response = await fetch(url, { method: "HEAD" });
+            if (response.ok) {
+                return url;
+            }
+
+        } catch (error: any) {
+            console.error(error)
+            console.warn(`Flag provider ${provider.name} failed:`, error.message);
         }
-    } catch {
-        return fallbackUrl;
     }
+
+    throw new Error(`Unable to retrieve flag URL from any source`);
 }
+

@@ -35,3 +35,8 @@ export interface GeoProvider {
     extractData: (response: any) => GeoData;
     handleError?: (error: any) => string;
 }
+
+export interface FlagProvider {
+    name: string;
+    buildUrl: (countryCode: string) => string;
+}
