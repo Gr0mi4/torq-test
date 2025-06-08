@@ -7,7 +7,9 @@ A Vue 3 web application for retrieving and displaying geolocation information by
 - Vue 3 (Composition API)
 - TypeScript
 - Vite
-- Axios (for HTTP requests)
+- Axios
+- Sass/SCSS
+- Vitest
 - npm
 
 ## Main Commands
@@ -36,17 +38,12 @@ npm run build
 npm run type-check
 ```
 
-### Linting
-
-```sh
-npm run lint
-```
-
 ## Features
 
-- IPv4 address input with mask and validation
-- Fetching geolocation data via external API
-- Request result caching
-- Stale request cancellation (AbortController)
-- Error handling and loading state display
-- Full TypeScript type safety
+- **IPv4 Input with Smart Mask**: Intelligent input validation
+- **Geolocation Data Fetching**: Retrieve country and timezone information via external API
+- **Country Flag Display**: Display country flags
+- **Fallback Data**: All data have a fallback sources
+- **Real-time Clock**: Show local time based on IP location timezone
+- **Random IP Generation**: Generate test IPs (Usefull for testing)
+- **Loading States**: Visual feedback during API requests

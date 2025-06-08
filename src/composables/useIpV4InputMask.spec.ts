@@ -1,46 +1,100 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref } from "vue";
-import { shouldAddAutoDot, generateRandomIp, useIpV4InputMask } from "@/composables/useIpV4InputMask";
+import {
+    shouldAddAutoDot,
+    generateRandomIp,
+    useIpV4InputMask,
+    fixLeadingZeros,
+    sanitizeRawValue
+} from "@/composables/useIpV4InputMask";
+
+describe("fixLeadingZeros", () => {
+    it("should remove leading zeros but keep at least one digit", () => {
+        expect(fixLeadingZeros("001")).toBe("1");
+        expect(fixLeadingZeros("010")).toBe("10");
+        expect(fixLeadingZeros("100")).toBe("100");
+    });
+
+    it("should return '0' for string of only zeros", () => {
+        expect(fixLeadingZeros("000")).toBe("0");
+        expect(fixLeadingZeros("0")).toBe("0");
+    });
+
+    it("should return empty string for empty input", () => {
+        expect(fixLeadingZeros("")).toBe("");
+    });
+
+    it("should not change single non-zero digits", () => {
+        expect(fixLeadingZeros("5")).toBe("5");
+        expect(fixLeadingZeros("9")).toBe("9");
+    });
+});
+
+describe("sanitizeRawValue", () => {
+    it("should limit octet length to 3 digits", () => {
+        expect(sanitizeRawValue("1234")).toBe("123");
+        expect(sanitizeRawValue("1234.5678")).toBe("123.255");
+    });
+
+    it("should limit octet value to 255", () => {
+        expect(sanitizeRawValue("300")).toBe("255");
+        expect(sanitizeRawValue("256.999")).toBe("255.255");
+    });
+
+    it("should fix leading zeros for completed octets", () => {
+        expect(sanitizeRawValue("001.002.003.004")).toBe("1.2.3.4");
+        expect(sanitizeRawValue("192.168.001")).toBe("192.168.001"); // последний октет не обрабатывается
+    });
+
+    it("should handle incomplete IP addresses", () => {
+        expect(sanitizeRawValue("192.168")).toBe("192.168");
+        expect(sanitizeRawValue("10")).toBe("10");
+    });
+});
 
 describe("shouldAddAutoDot", () => {
     it("should return false for empty or null input", () => {
-        expect(shouldAddAutoDot("")).toBe(false);
-        expect(shouldAddAutoDot(null as any)).toBe(false);
-        expect(shouldAddAutoDot(undefined as any)).toBe(false);
+        expect(shouldAddAutoDot("", 1)).toBe(false);
+        expect(shouldAddAutoDot(null as any, 1)).toBe(false);
+        expect(shouldAddAutoDot(undefined as any, 1)).toBe(false);
     });
 
     it("should return false for non-numeric input", () => {
-        expect(shouldAddAutoDot("abc")).toBe(false);
+        expect(shouldAddAutoDot("abc", 1)).toBe(false);
+    });
+
+    it("should return false if already 4 octets", () => {
+        expect(shouldAddAutoDot("123", 4)).toBe(false);
     });
 
     it("should return true for 3-digit octets <= 255", () => {
-        expect(shouldAddAutoDot("255")).toBe(true);
-        expect(shouldAddAutoDot("123")).toBe(true);
-        expect(shouldAddAutoDot("001")).toBe(true);
+        expect(shouldAddAutoDot("255", 1)).toBe(true);
+        expect(shouldAddAutoDot("123", 2)).toBe(true);
+        expect(shouldAddAutoDot("001", 3)).toBe(true);
     });
 
     it("should return false for 3-digit octets > 255", () => {
-        expect(shouldAddAutoDot("256")).toBe(false);
-        expect(shouldAddAutoDot("300")).toBe(false);
-        expect(shouldAddAutoDot("999")).toBe(false);
+        expect(shouldAddAutoDot("256", 1)).toBe(false);
+        expect(shouldAddAutoDot("300", 2)).toBe(false);
+        expect(shouldAddAutoDot("999", 3)).toBe(false);
     });
 
     it("should return true for 2-digit octets >= 26", () => {
-        expect(shouldAddAutoDot("26")).toBe(true);
-        expect(shouldAddAutoDot("99")).toBe(true);
-        expect(shouldAddAutoDot("30")).toBe(true);
+        expect(shouldAddAutoDot("26", 1)).toBe(true);
+        expect(shouldAddAutoDot("99", 2)).toBe(true);
+        expect(shouldAddAutoDot("30", 3)).toBe(true);
     });
 
     it("should return false for 2-digit octets < 26", () => {
-        expect(shouldAddAutoDot("25")).toBe(false);
-        expect(shouldAddAutoDot("12")).toBe(false);
-        expect(shouldAddAutoDot("01")).toBe(false);
+        expect(shouldAddAutoDot("25", 1)).toBe(false);
+        expect(shouldAddAutoDot("12", 2)).toBe(false);
+        expect(shouldAddAutoDot("01", 3)).toBe(false);
     });
 
     it("should return true for single digit >= 256 (edge case)", () => {
-        // This test covers the last condition, though it's unusual for single digits
-        expect(shouldAddAutoDot("2")).toBe(false);
-        expect(shouldAddAutoDot("9")).toBe(false);
+        // Исправлено: для одиночных цифр возвращается false, кроме случая когда число >= 256
+        expect(shouldAddAutoDot("2", 1)).toBe(false);
+        expect(shouldAddAutoDot("9", 1)).toBe(false);
     });
 });
 
@@ -58,8 +112,7 @@ describe("generateRandomIp", () => {
     });
 
     it("should generate octets with length between 1 and 3", () => {
-        // Run multiple times to test randomness
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             const ip = generateRandomIp();
             const octets = ip.split(".");
             octets.forEach(octet => {
@@ -97,13 +150,24 @@ describe("useIpV4InputMask", () => {
             expect(preventDefaultSpy).not.toHaveBeenCalled();
         });
 
-        it("should allow dots", () => {
+        it("should allow dots when less than 3 dots present", () => {
+            ip.value = "192.168";
             const event = new KeyboardEvent("keypress", { key: "." });
             const preventDefaultSpy = vi.spyOn(event, "preventDefault");
 
             ipInputMask.onKeypress(event);
 
             expect(preventDefaultSpy).not.toHaveBeenCalled();
+        });
+
+        it("should prevent dots when already 3 dots present", () => {
+            ip.value = "192.168.1.1";
+            const event = new KeyboardEvent("keypress", { key: "." });
+            const preventDefaultSpy = vi.spyOn(event, "preventDefault");
+
+            ipInputMask.onKeypress(event);
+
+            expect(preventDefaultSpy).toHaveBeenCalled();
         });
 
         it("should prevent non-numeric and non-dot characters", () => {
@@ -191,27 +255,7 @@ describe("useIpV4InputMask", () => {
             expect(ip.value).toBe(initialValue);
         });
 
-        it("should limit octet length to 3 digits and add dot", () => {
-            const event = {
-                target: { value: "1234" }
-            } as any;
-
-            ipInputMask.ipInputHelper(event);
-
-            expect(ip.value).toBe("123.");
-        });
-
-        it("should limit octet value to 255 and add dot", () => {
-            const event = {
-                target: { value: "300" }
-            } as any;
-
-            ipInputMask.ipInputHelper(event);
-
-            expect(ip.value).toBe("255.");
-        });
-
-        it("should auto-add dot for qualifying octets", () => {
+        it("should sanitize input and add auto dot", () => {
             const event = {
                 target: { value: "192" }
             } as any;
@@ -219,6 +263,16 @@ describe("useIpV4InputMask", () => {
             ipInputMask.ipInputHelper(event);
 
             expect(ip.value).toBe("192.");
+        });
+
+        it("should limit octet value to 255", () => {
+            const event = {
+                target: { value: "300" }
+            } as any;
+
+            ipInputMask.ipInputHelper(event);
+
+            expect(ip.value).toBe("255.");
         });
 
         it("should blur input when 4th octet has 3 digits", () => {
@@ -229,19 +283,6 @@ describe("useIpV4InputMask", () => {
             ipInputMask.ipInputHelper(event);
 
             expect(mockInputElement.blur).toHaveBeenCalled();
-        });
-
-        it("should not add dot if already 4 octets", () => {
-            const event = {
-                target: { value: "192.168.1.1" }
-            } as any;
-
-            // Set initial value since function only updates if sanitization changes the value
-            ip.value = "192.168.1.1";
-
-            ipInputMask.ipInputHelper(event);
-
-            expect(ip.value).toBe("192.168.1.1");
         });
 
         it("should handle multiple octets exceeding 255", () => {

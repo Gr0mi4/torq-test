@@ -60,15 +60,3 @@ function checkReservedRanges(ip: string): string | null {
 
     return null;
 }
-
-/**
- * Fixes leading zeros and empty octets on input
- * @param value
- */
-export function fixLeadingZeros(value: string): string {
-    return value.split(".")
-        .map(octet => {
-            return octet.replace(/^0+(\d)/, "$1") || (octet === "" ? "" : "0");
-        })
-        .join(".");
-}

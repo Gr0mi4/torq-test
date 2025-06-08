@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest"
-import { validateIPv4, fixLeadingZeros } from "@/utils/validation"
+import { validateIPv4 } from "@/utils/validation"
 import type { ValidationResult } from "@/types/index"
 import { VALIDATION_ERRS_TEXT } from "@/utils/validation";
 import { RESERVED_RANGE_MESSAGES } from "@/config/reservedRanges";
@@ -95,31 +95,5 @@ describe("validateIPv4", () => {
             isValid: true,
             message: VALIDATION_ERRS_TEXT.VALID,
         })
-    })
-})
-
-describe("fixLeadingZeros", () => {
-    it("removes leading zeros from each octet, keeping '0' if it is the only digit", () => {
-        const cases: Array<{ input: string; expected: string }> = [
-            { input: "001.002.003.004", expected: "1.2.3.4" },
-            { input: "192.168.001.001", expected: "192.168.1.1" },
-            { input: "000.010.020.030", expected: "0.10.20.30" },
-            { input: "0.0.0.0", expected: "0.0.0.0" },
-            { input: "00.00.00.00", expected: "0.0.0.0" },
-        ]
-
-        cases.forEach(({ input, expected }) => {
-            expect(fixLeadingZeros(input)).toBe(expected)
-        })
-    })
-
-    it("preserves empty octets (consecutive dots produce empty segments)", () => {
-        const input = ".1.02..003."
-        expect(fixLeadingZeros(input)).toBe(".1.2..3.")
-    })
-
-    it("leaves a single '0' unchanged", () => {
-        const input = "0.10.0.5"
-        expect(fixLeadingZeros(input)).toBe("0.10.0.5")
     })
 })

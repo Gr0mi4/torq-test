@@ -1,18 +1,65 @@
-import { nextTick, Ref } from "vue";
+import { Ref } from "vue";
+
+enum IPv4Constants {
+    MAX_OCTET_LENGTH = 3,
+    MAX_OCTETS_COUNT = 4,
+    LAST_OCTET_INDEX = 3,
+    MAX_OCTET_NUM = 255,
+    MAX_DOTS_COUNT = 3,
+}
+
+/**
+ * Fixes leading zeros for octet
+ * @param octet
+ */
+export function fixLeadingZeros(octet: string): string {
+    return octet.replace(/^0+(\d)/, "$1") || (octet === "" ? "" : "0");
+}
+
+/**
+ * Sanitizes IP octets by limiting length and value, and fixing leading zeros
+ * @param rawValue
+ */
+export function sanitizeRawValue(rawValue: string): string {
+    const octets: string[] = rawValue.split(".");
+    const sanitizedOctets = octets.map((oct, index) => {
+        // Limit max octet length
+        if (oct.length > IPv4Constants.MAX_OCTET_LENGTH) {
+            oct = oct.slice(0, IPv4Constants.MAX_OCTET_LENGTH);
+        }
+
+        const num = parseInt(oct, 10);
+        if (num > IPv4Constants.MAX_OCTET_NUM) {
+            return `${IPv4Constants.MAX_OCTET_NUM}`;
+        }
+
+        // Remove leading zeros AFTER user finished it, or if it's last octet
+        if (index < octets.length - 1 || index === IPv4Constants.LAST_OCTET_INDEX) {
+            oct = fixLeadingZeros(oct)
+        }
+
+        return oct;
+    });
+
+    return sanitizedOctets.join(".");
+}
 
 /**
  * Function decides whether to add a dot after an octet in an IP address input.
  * Part of input helper function
  * @param octet
+ * @param currentOctetsCount
  */
-export function shouldAddAutoDot(octet: string): boolean {
+export function shouldAddAutoDot(octet: string, currentOctetsCount: number): boolean {
+    if (currentOctetsCount >= IPv4Constants.MAX_OCTETS_COUNT) return false;
+
     if (!octet || octet.length === 0) return false;
 
     const num = parseInt(octet);
     if (isNaN(num)) return false;
 
-    if (octet.length === 3) {
-        return num <= 255;
+    if (octet.length === IPv4Constants.MAX_OCTET_LENGTH) {
+        return num <= IPv4Constants.MAX_OCTET_NUM;
     }
 
     if (octet.length === 2 && num >= 26) return true;
@@ -24,39 +71,26 @@ export function shouldAddAutoDot(octet: string): boolean {
  * Generates a random IP address with octets of 1 to 3 digits, each digit being 0, 1, or 2.
  */
 export function generateRandomIp(): string {
-    const octets = [];
-    for (let i = 0; i < 4; i++) {
-        const len = Math.floor(Math.random() * 3) + 1;
+    const generateRandomOctet = (): string => {
+        const MIN_OCTET_LENGTH = 1;
+        const MAX_AMOUNT_OF_HUNDREDS = 3;
+        const length = Math.floor(Math.random() * IPv4Constants.MAX_OCTET_LENGTH) + MIN_OCTET_LENGTH;
         let octet = "";
-        for (let j = 0; j < len; j++) {
-            octet += String(Math.floor(Math.random() * 3));
+
+        for (let i = 0; i < length; i++) {
+            octet += String(Math.floor(Math.random() * MAX_AMOUNT_OF_HUNDREDS));
         }
-        octets.push(octet);
+
+        return octet;
     }
+
+    const octets: string[] = [];
+
+    for (let i = 0; i < IPv4Constants.MAX_OCTETS_COUNT; i++) {
+        octets.push(fixLeadingZeros(generateRandomOctet()));
+    }
+
     return octets.join(".");
-}
-
-/**
- * Adds a dot at the end of the input value and moves the cursor to the end.
- * @param inputRef
- * @param inputElRef
- * @param baseValue
- */
-function addAutoDot(
-    inputRef: { value: string },
-    inputElRef: { value: HTMLInputElement | null },
-    baseValue: string
-) {
-    const newValue = baseValue + ".";
-
-    inputRef.value = newValue;
-
-    // Moving cursor after dot
-    nextTick(() => {
-        if (inputElRef.value) {
-            inputElRef.value.setSelectionRange(newValue.length, newValue.length);
-        }
-    });
 }
 
 /**
@@ -67,15 +101,19 @@ function addAutoDot(
  * @param {Ref<HTMLInputElement | null>} inputEl - A reactive reference to the HTML input element
  * @return {Object} An object containing functions to handle keypress events, paste events, and IP input formatting.
  */
-export function useIpV4InputMask(
-    ip: Ref<string>,
-    inputEl: Ref<HTMLInputElement | null>
-) {
-
+export function useIpV4InputMask(ip: Ref<string>, inputEl: Ref<HTMLInputElement | null>) {
     function onKeypress(event: KeyboardEvent) {
         if (event.key.length > 1 || event.ctrlKey || event.metaKey) return;
 
-        // Regular expression to allow only digits and dots
+        if (event.key === ".") {
+            const currentDots = (ip.value.match(/\./g) || []).length;
+            if (currentDots >= IPv4Constants.MAX_DOTS_COUNT) {
+                event.preventDefault();
+                return;
+            }
+        }
+
+        // Allow only digits and dots
         if (!/[\d.]/.test(event.key)) {
             event.preventDefault();
         }
@@ -83,51 +121,29 @@ export function useIpV4InputMask(
 
     function onPaste(event: ClipboardEvent) {
         event.preventDefault();
-        const raw = event.clipboardData?.getData("text") || "";
+        const rawValue = event.clipboardData?.getData("text") || "";
 
-        ip.value = raw.replace(/[^0-9.]/g, "");
+        ip.value = rawValue.replace(/[^0-9.]/g, "");
     }
 
     function ipInputHelper(event: Event) {
         const inputEvent = event as InputEvent;
-        // Make sure we avoid undeletable dots
-        if (inputEvent.inputType && inputEvent.inputType.startsWith("delete")) {
+        // Avoid undeletable dots
+        if (inputEvent.inputType?.startsWith("delete")) {
             return;
         }
 
-        const raw: string = (event.target as HTMLInputElement).value;
+        const rawValue: string = (event.target as HTMLInputElement).value;
+        ip.value = sanitizeRawValue(rawValue);
 
-        let octets: string[] = raw.split(".");
-
-        // Sanitize octets: limit length to 3 digits, and ensure each octet is within 0-255
-        const sanitizedOctets = octets.map(oct => {
-            if (oct.length > 3) {
-                oct = oct.slice(0, 3);
-            }
-            const num = parseInt(oct, 10);
-            // Octets more then 255 will be replaced with "255",
-            if (num > 255) {
-                return "255";
-            }
-            return oct;
-        });
-
-        const sanitizedValue = sanitizedOctets.join(".");
-        if (sanitizedValue !== raw) {
-            ip.value = sanitizedValue;
-            octets = sanitizedValue.split(".");
-        }
-
+        const octets = ip.value.split(".");
         const lastOctet = octets[octets.length - 1];
-        const octetsCount = octets.length;
 
-        if (shouldAddAutoDot(lastOctet) && octetsCount < 4) {
-            addAutoDot(ip, inputEl, sanitizedValue);
-            return;
-        } else if (octetsCount === 4) {
-            if (lastOctet.length === 3) {
-                inputEl.value?.blur();
-            }
+        if (shouldAddAutoDot(lastOctet, octets.length)) {
+            ip.value = ip.value + ".";
+        }
+        if (octets.length === IPv4Constants.MAX_OCTETS_COUNT && lastOctet.length === IPv4Constants.MAX_OCTET_LENGTH) {
+            inputEl.value?.blur();
         }
     }
 

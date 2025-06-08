@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, computed } from "vue";
-import { fixLeadingZeros, validateIPv4 } from "@/utils/validation";
+import { validateIPv4 } from "@/utils/validation";
 import { getFlagUrl } from "@/utils/flagHelper";
 import StatusIcon from "@/components/StatusIcon.vue";
 import { GeoData, RequestStatus } from "@/types";
@@ -69,16 +69,43 @@ onMounted(() => {
 });
 
 const status = ref<RequestStatus>(RequestStatus.Idle);
-
 const ipInput = ref<string>("");
+const errorText = ref<string>("");
+
+const countryData = reactive<GeoData>({
+    countryCode: "",
+    timezone: "",
+})
+const flagUrl = ref<string>("");
+
+
+function clearCountryData() {
+    countryData.countryCode = "";
+    countryData.timezone = "";
+    flagUrl.value = "";
+    errorText.value = "";
+}
+
 const { onKeypress, onPaste, ipInputHelper } = useIpV4InputMask(ipInput, inputEl);
+const { now } = useClock();
+
+const localTime = computed(() => {
+    if (!countryData.timezone) return "";
+    return new Intl.DateTimeFormat("default", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+        timeZone: countryData.timezone
+    }).format(now.value);
+});
 
 const processInput = async () => {
-    ipInput.value = fixLeadingZeros(ipInput.value).trim();
+    ipInput.value = ipInput.value.trim();
     const { isValid, message } = validateIPv4(ipInput.value);
     if (!isValid) {
         status.value = RequestStatus.Error;
-        errorText.value = message || "Invalid IP address";
+        errorText.value = message;
         return;
     }
     clearCountryData();
@@ -94,33 +121,6 @@ const processInput = async () => {
         errorText.value = e;
     }
 }
-const countryData = reactive<GeoData>({
-    countryCode: "",
-    timezone: "",
-})
-const flagUrl = ref<string>("");
-
-function clearCountryData() {
-    countryData.countryCode = "";
-    countryData.timezone = "";
-    flagUrl.value = "";
-    errorText.value = "";
-}
-
-const { now } = useClock();
-
-const localTime = computed(() => {
-    if (!countryData.timezone) return "";
-    return new Intl.DateTimeFormat("default", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-        timeZone: countryData.timezone
-    }).format(now.value);
-});
-
-const errorText = ref<string>("");
 
 function handleRandomClick() {
     if (status.value !== RequestStatus.Loading) {
@@ -136,8 +136,6 @@ function deleteInput() {
 </script>
 
 <style scoped lang="scss">
-$shadow: rgba(0, 0, 0, 0.3);
-
 .row-wrapper {
     display: flex;
     height: 40px;
@@ -186,7 +184,7 @@ $shadow: rgba(0, 0, 0, 0.3);
 }
 
 .country-flag {
-    box-shadow: 2px 5px 5px $shadow;
+    box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.3);
 }
 
 .error-text {
