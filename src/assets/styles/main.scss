@@ -35,6 +35,7 @@ button:hover {
 
 button {
     position: relative;
+    user-select: none;
 }
 
 button[data-tooltip]:after {
