@@ -1,12 +1,12 @@
 import { ReservedRange } from "@/types";
 
 export const RESERVED_RANGE_MESSAGES = {
-    PRIVATE_10: "Private network addresses (10.0.0.0/8) cannot be routed on the public internet",
-    PRIVATE_172: "Private network addresses (172.16.0.0/12) cannot be routed on the public internet",
-    PRIVATE_192: "Private network addresses (192.168.0.0/16) cannot be routed on the public internet",
-    LOOPBACK: "Loopback addresses (127.0.0.0/8) are reserved for internal host communication",
-    LINK_LOCAL: "Link-local addresses (169.254.0.0/16) are used for automatic IP addressing when DHCP is unavailable",
-    UNSPECIFIED: "IP addresses in the 0.0.0.0/8 range are invalid and cannot be processed",
+    PRIVATE_10: "IP with first octet = 10 is a private network cannot be routed on the public internet",
+    PRIVATE_172: "Private network addresses with first octets 172.16. cannot be routed on the public internet",
+    PRIVATE_192: "With first 2 octets = 192.168 is a private network addresses and cannot be routed on the public internet",
+    LOOPBACK: "Loopback addresses with first octet 127 are reserved for internal host communication",
+    LINK_LOCAL: "Link-local addresses with first octets 169.254 are used for automatic IP addressing when DHCP is unavailable",
+    UNSPECIFIED: "IP addresses in range the with 0 as first octet are reserved, and can't be processed",
     BROADCAST: "Broadcast address (255.255.255.255) is used to send data to all hosts on the local network"
 };
 
