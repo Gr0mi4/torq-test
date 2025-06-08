@@ -12,8 +12,12 @@ A Vue 3 web application for retrieving and displaying geolocation information by
 - Vitest
 - npm
 
-## Main Commands
+## Prerequisites
 
+- **Node.js** v16 – v20  
+- npm ≥ 8
+
+## Main Commands
 ### Install dependencies
 
 ```sh
