@@ -14,7 +14,7 @@ A Vue 3 web application for retrieving and displaying geolocation information by
 
 ## Prerequisites
 
-- **Node.js** v16 – v20  
+- **Node.js** ≥ v18.12.0
 - npm ≥ 8
 
 ## Main Commands
