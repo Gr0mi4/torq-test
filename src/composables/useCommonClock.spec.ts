@@ -6,7 +6,7 @@ import { useClock } from "@/composables/useCommonClock"
 describe("useClock", () => {
     beforeEach(() => {
         vi.useFakeTimers()
-        
+
         vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
     })
 
@@ -32,7 +32,6 @@ describe("useClock", () => {
         const updatedTime = (wrapper.vm as any).now.getTime()
         expect(updatedTime - initialTime).toBeGreaterThanOrEqual(1000)
 
-        // Advance another 2 seconds
         vi.advanceTimersByTime(2000)
         await nextTick()
 
@@ -53,7 +52,6 @@ describe("useClock", () => {
         const wrapper = mount(TestComponent)
         const beforeUnmountTime = (wrapper.vm as any).now.getTime()
 
-        // Advance 1 second to ensure interval has run at least once
         vi.advanceTimersByTime(1000)
         await nextTick()
         const midTime = (wrapper.vm as any).now.getTime()
@@ -63,7 +61,6 @@ describe("useClock", () => {
 
         const timeAtUnmount = midTime
 
-        // Advance timers by 5 seconds after unmount
         vi.advanceTimersByTime(5000)
         await nextTick()
 
